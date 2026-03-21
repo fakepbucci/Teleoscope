@@ -29,5 +29,8 @@ COPY schemas /app/schemas
 # Ensure Python can find backend module
 ENV PYTHONPATH=/app
 
+RUN useradd -m -u 1001 celery
+USER celery
+
 # Default: run Celery tasks worker (override in compose)
 CMD ["python", "-m", "celery", "-A", "backend.tasks", "worker", "--loglevel=info"]

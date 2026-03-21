@@ -100,6 +100,12 @@ services:
         condition: service_healthy
     volumes:
       - milvus_data:/var/lib/milvus
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:9091/healthz"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+      start_period: 60s
 
   etcd:
     image: quay.io/coreos/etcd:v3.5.5
@@ -183,7 +189,6 @@ services:
     restart: unless-stopped
     command: ["python", "-m", "celery", "-A", "backend.tasks", "worker", "--loglevel=info", "-Q", "teleoscope-tasks"]
     environment:
-      C_FORCE_ROOT: 1
       RABBITMQ_USERNAME: guest
       RABBITMQ_PASSWORD: guest
       RABBITMQ_HOST: rabbitmq
@@ -207,9 +212,12 @@ services:
     env_file:
       - .env
     depends_on:
-      - rabbitmq
-      - mongodb
-      - milvus
+      rabbitmq:
+        condition: service_healthy
+      mongodb:
+        condition: service_healthy
+      milvus:
+        condition: service_healthy
 
   # Dispatch - routes incoming messages to Celery tasks
   dispatch:
@@ -219,7 +227,6 @@ services:
     restart: unless-stopped
     command: ["python", "-m", "backend.dispatch"]
     environment:
-      C_FORCE_ROOT: 1
       RABBITMQ_USERNAME: guest
       RABBITMQ_PASSWORD: guest
       RABBITMQ_HOST: rabbitmq
@@ -240,7 +247,6 @@ services:
     restart: unless-stopped
     command: ["python", "-m", "celery", "-A", "backend.graph", "worker", "--loglevel=info", "-Q", "graph"]
     environment:
-      C_FORCE_ROOT: 1
       RABBITMQ_USERNAME: guest
       RABBITMQ_PASSWORD: guest
       RABBITMQ_HOST: rabbitmq
@@ -260,9 +266,12 @@ services:
     env_file:
       - .env
     depends_on:
-      - rabbitmq
-      - mongodb
-      - milvus
+      rabbitmq:
+        condition: service_healthy
+      mongodb:
+        condition: service_healthy
+      milvus:
+        condition: service_healthy
 
   # Vectorizer - BGEM3 embeddings
   vectorizer:
@@ -317,8 +326,10 @@ services:
     env_file:
       - .env
     depends_on:
-      - rabbitmq
-      - milvus
+      rabbitmq:
+        condition: service_healthy
+      milvus:
+        condition: service_healthy
 
   # Files API - FastAPI for file downloads
   files:
