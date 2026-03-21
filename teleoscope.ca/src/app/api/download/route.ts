@@ -1,7 +1,13 @@
 export const dynamic = 'force-dynamic';
+import { validateRequest } from '@/lib/auth';
 import { NextResponse } from 'next/server';
 
 export async function GET(request: Request) {
+  const { user } = await validateRequest();
+  if (!user) {
+    return NextResponse.json({ message: 'No user signed in.' }, { status: 401 });
+  }
+
   const { searchParams } = new URL(request.url);
   const filename = searchParams.get('filename');
 

@@ -7,7 +7,7 @@ import { Db, MongoClient, ObjectId } from 'mongodb';
 export async function GET(request: NextRequest) {
     const { user } = await validateRequest();
     if (!user) {
-        return NextResponse.json({ message: 'No user signed in.' });
+        return NextResponse.json({ message: 'No user signed in.' }, { status: 401 });
     }
 
     const document = request.nextUrl.searchParams.get('document');

@@ -10,7 +10,7 @@ const MONGODB_DATABASE = process.env.MONGODB_DATABASE!;
 export const POST = async (request: NextRequest) => {
     const { user, session } = await validateRequest();
     if (!user) {
-        return NextResponse.json({ message: 'No user signed in.' });
+        return NextResponse.json({ message: 'No user signed in.' }, { status: 401 });
     }
     if (await isDemoUserById(user.id)) {
         return NextResponse.json(

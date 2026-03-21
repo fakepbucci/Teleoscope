@@ -24,7 +24,7 @@ interface FileFormData {
 export const POST = async (req: NextRequest) => {
   const { user, session } = await validateRequest();
     if (!user) {
-        return NextResponse.json({ message: 'No user signed in.' });
+        return NextResponse.json({ message: 'No user signed in.' }, { status: 401 });
     }
   if (await isDemoUserById(user.id)) {
     return NextResponse.json(

@@ -8,7 +8,7 @@ import { Db, MongoClient } from 'mongodb';
 export async function GET(request: NextRequest) {
     const { user, session } = await validateRequest();
     if (!user) {
-        return NextResponse.json({ message: 'No user signed in.' });
+        return NextResponse.json({ message: 'No user signed in.' }, { status: 401 });
     }
     const team_oid = request.nextUrl.searchParams.get('team');
 

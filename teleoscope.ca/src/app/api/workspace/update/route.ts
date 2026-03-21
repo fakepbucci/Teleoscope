@@ -9,7 +9,7 @@ import { Db, MongoClient } from 'mongodb';
 export async function POST(request: NextRequest) {
     const { user } = await validateRequest();
     if (!user) {
-        return NextResponse.json({ message: 'No user signed in.' });
+        return NextResponse.json({ message: 'No user signed in.' }, { status: 401 });
     }
     const { workspace_id, label } = await request.json();
 

@@ -10,7 +10,7 @@ import { Teams } from '@/types/teams';
 export async function POST(request: NextRequest) {
     const { user } = await validateRequest();
     if (!user) {
-        return NextResponse.json({ message: 'No user signed in.' });
+        return NextResponse.json({ message: 'No user signed in.' }, { status: 401 });
     }
     const { workspace_id, workflow_id } = await request.json();
 

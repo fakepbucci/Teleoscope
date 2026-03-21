@@ -9,7 +9,7 @@ import { Graph } from '@/types/graph';
 export async function POST(request: NextRequest) {
     const { user } = await validateRequest();
     if (!user) {
-        return NextResponse.json({ message: 'No user signed in.' });
+        return NextResponse.json({ message: 'No user signed in.' }, { status: 401 });
     }
     const { uids } = await request.json()
 

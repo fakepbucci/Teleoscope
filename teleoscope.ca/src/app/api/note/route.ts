@@ -9,7 +9,7 @@ import { Graph } from '@/types/graph';
 export async function GET(request: NextRequest) {
     const { user, session } = await validateRequest();
     if (!user) {
-        return NextResponse.json({ message: 'No user signed in.' });
+        return NextResponse.json({ message: 'No user signed in.' }, { status: 401 });
     }
     const note = request.nextUrl.searchParams.get('note');
     const uid = request.nextUrl.searchParams.get('uid');
