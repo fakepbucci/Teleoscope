@@ -17,13 +17,8 @@ RUN pnpm install --frozen-lockfile
 WORKDIR /app/teleoscope.ca
 RUN pnpm install --frozen-lockfile
 
-# Copy schemas and app source (schemas must be in parent for loadschemas.py)
-COPY schemas /app/schemas
+# Copy app source (schema artifacts are pre-generated and committed to the repo)
 COPY teleoscope.ca ./
-
-# Generate schemas (loadschemas.py expects ../schemas)
-RUN apk add --no-cache python3 py3-pip py3-yaml
-RUN python3 loadschemas.py
 
 # Build
 ENV NODE_ENV=production
