@@ -65,9 +65,9 @@ queue = Queue(RABBITMQ_TASK_QUEUE, Exchange(RABBITMQ_TASK_QUEUE), RABBITMQ_TASK_
 app = Celery("tasks", backend="rpc://", broker=CELERY_BROKER_URL)
 
 app.conf.update(
-    task_serializer="pickle",
-    accept_content=["pickle", "json"],  # Ignore other content
-    result_serializer="pickle",
+    task_serializer="json",
+    accept_content=["json"],  # Ignore other content
+    result_serializer="json",
     task_queues=[queue],
     worker_concurrency=4,
     worker_max_memory_per_child=4000000,
@@ -161,7 +161,7 @@ def delete_storage(*args, database: str, userid: str, workspace: str, storage: s
 
     db.storage.delete_one({"_id": storage})
     db.workspaces.update_one({"_id": workspace}, {"$pull": {"storage": storage}})
-    db.groups.update_many({}, {"$pull": {"$in": storage_item["docs"]}})
+    db.groups.update_many({}, {"$pull": {"docs": {"$in": storage_item["docs"]}}})
     db.documents.delete_many({"_id": {"$in": storage_item["docs"]}})
     logging.info(
         f"Deleted all documents from {storage} in database {database} and workspace {workspace}."

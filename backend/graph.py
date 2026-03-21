@@ -63,9 +63,9 @@ queue = Queue("graph", Exchange("graph"), "graph")
 app = Celery("backend.graph", backend="rpc://", broker=CELERY_BROKER_URL)
 
 app.conf.update(
-    task_serializer="pickle",
-    accept_content=["pickle", "json"],  # Ignore other content
-    result_serializer="pickle",
+    task_serializer="json",
+    accept_content=["json"],  # Ignore other content
+    result_serializer="json",
     task_queues=[queue],
     worker_concurrency=1,
 )

@@ -73,7 +73,7 @@ def upload_vectors(ch, method, properties, body):
     embeddings.milvus_setup(client, workspace_id, collection_name=database)
 
     embeddings.use_database_if_supported(client)
-    
+
     try:
         # Upload vector to the database
         logging.info(f"Attempting to upload {len(vector_data)} vectors...")
@@ -84,7 +84,7 @@ def upload_vectors(ch, method, properties, body):
             )
             logging.info(f"ID of first vector is {vector_data[0].get('id','')}.")
         res = client.upsert(
-            collection_name=database, 
+            collection_name=database,
             data=vector_data,
             partition_name=str(workspace_id)
         )
@@ -100,7 +100,10 @@ def upload_vectors(ch, method, properties, body):
     except Exception as e:
         logging.error(f"Error uploading vector data: {e}")
         logging.error(f"Pretty printing bad data: {pformat(message)}")
-    finally:
+        client.close()
+        ch.basic_nack(delivery_tag=method.delivery_tag, requeue=True)
+        return
+    else:
         client.close()
 
     task_data = {

@@ -223,8 +223,9 @@ def vectorize_documents(
 
     except Exception as e:
         logging.error("Error during vectorization: %s", e)
-    finally:
-        ch.basic_ack(delivery_tag=method.delivery_tag)
+        ch.basic_nack(delivery_tag=method.delivery_tag, requeue=True)
+        return
+    ch.basic_ack(delivery_tag=method.delivery_tag)
 
 
 def _stop_consuming_safe() -> None:
