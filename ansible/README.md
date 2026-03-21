@@ -36,7 +36,7 @@ rabbitmq_admin_username: example_admin            # replace "example_admin" with
 rabbitmq_admin_password: admin_password           # replace "admin_password" with your administrator's password (can be different than above)
 rabbitmq_dev_username:  example_dev               # replace "example_dev" with your name (can be different than above)
 rabbitmq_dev_password: dev_password               # replace "dev_password" with your password (can be different than above)
-nodejs_version: 19                                # tested for 19
+nodejs_version: 22                                # tested for 22
 ubuntu_version: jammy                             # tested for focal and jammy, may need to change some configs for focal
 ```
 

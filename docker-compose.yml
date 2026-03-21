@@ -124,7 +124,7 @@ services:
       retries: 5
 
   minio:
-    image: minio/minio:RELEASE.2023-03-20T20-16-18Z
+    image: minio/minio:RELEASE.2025-02-28T09-55-16Z
     restart: unless-stopped
     command: minio server /minio_data --console-address ":9001"
     environment:
@@ -142,6 +142,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.app
+    image: teleoscope/app:${TELEOSCOPE_VERSION:-latest}
     restart: unless-stopped
     ports:
       - "3000:3000"
@@ -186,6 +187,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.backend
+    image: teleoscope/worker-tasks:${TELEOSCOPE_VERSION:-latest}
     restart: unless-stopped
     command: ["python", "-m", "celery", "-A", "backend.tasks", "worker", "--loglevel=info", "-Q", "teleoscope-tasks"]
     environment:
@@ -224,6 +226,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.backend
+    image: teleoscope/dispatch:${TELEOSCOPE_VERSION:-latest}
     restart: unless-stopped
     command: ["python", "-m", "backend.dispatch"]
     environment:
@@ -244,6 +247,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.backend
+    image: teleoscope/worker-graph:${TELEOSCOPE_VERSION:-latest}
     restart: unless-stopped
     command: ["python", "-m", "celery", "-A", "backend.graph", "worker", "--loglevel=info", "-Q", "graph"]
     environment:
@@ -280,6 +284,7 @@ services:
       dockerfile: Dockerfile.backend
       args:
         PREWARM_BGE_M3: "1"
+    image: teleoscope/vectorizer:${TELEOSCOPE_VERSION:-latest}
     restart: unless-stopped
     command: ["python", "-m", "backend.vectorizer"]
     ports:
@@ -307,6 +312,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.backend
+    image: teleoscope/uploader:${TELEOSCOPE_VERSION:-latest}
     restart: unless-stopped
     command: ["python", "-m", "backend.uploader"]
     environment:
@@ -336,6 +342,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.backend
+    image: teleoscope/files:${TELEOSCOPE_VERSION:-latest}
     restart: unless-stopped
     command: ["gunicorn", "-w", "2", "-k", "uvicorn.workers.UvicornWorker", "files:app", "--bind", "0.0.0.0:8000"]
     working_dir: /app/backend
