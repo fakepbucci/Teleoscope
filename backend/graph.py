@@ -15,6 +15,7 @@ from kombu import Exchange, Queue
 from backend import embeddings
 from backend import utils
 from backend import projection
+from backend.logging_config import configure_logging
 
 # environment variables
 from dotenv import load_dotenv
@@ -539,14 +540,7 @@ def update_filter(db, node, sources: List, controls: List, parameters):
 
 
 def setup_logging():
-    logging.basicConfig(
-        level=logging.INFO,  # Set the desired log level
-        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-        handlers=[
-            logging.StreamHandler(),  # Logs to console
-            # Add more handlers here if needed, like FileHandler for logging to files
-        ],
-    )
+    configure_logging(service="worker-graph")
 
 def start_worker():
     worker = app.Worker(

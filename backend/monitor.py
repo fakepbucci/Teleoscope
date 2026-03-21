@@ -5,6 +5,7 @@ import sys
 import boto3
 from botocore.exceptions import ClientError
 from backend import utils
+from backend.logging_config import configure_logging
 
 # Function to check if required environment variables are set
 def check_env_var(var_name: str):
@@ -20,12 +21,7 @@ EC2_VECTORDB_INSTANCE = check_env_var("EC2_VECTORDB_INSTANCE")
 RABBITMQ_VHOST = check_env_var("RABBITMQ_VHOST")
 
 # Initialize logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='[%(asctime)s: %(levelname)s/%(processName)s] %(message)s',
-    datefmt='%Y-%m-%d %H:%M:%S,%f',
-    handlers=[logging.StreamHandler(sys.stdout)]
-)
+configure_logging(service="monitor")
 logging.getLogger('pika').setLevel(logging.WARNING)
 
 

@@ -6,16 +6,12 @@ import signal
 import sys
 from backend import utils
 from backend import embeddings
+from backend.logging_config import configure_logging
 import os
 import uuid
 
 # Initialize logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='[%(asctime)s: %(levelname)s/%(processName)s] %(message)s',
-    datefmt='%Y-%m-%d %H:%M:%S,%f',
-    handlers=[logging.StreamHandler(sys.stdout)]
-)
+configure_logging(service="uploader")
 logging.getLogger('pika').setLevel(logging.WARNING)
 
 

@@ -29,14 +29,10 @@ from dotenv import load_dotenv
 from FlagEmbedding import BGEM3FlagModel
 
 from backend import utils
+from backend.logging_config import configure_logging
 
 # Initialize logging
-logging.basicConfig(
-    level=logging.INFO,
-    format="[%(asctime)s: %(levelname)s/%(processName)s] %(message)s",
-    datefmt="%Y-%m-%d %H:%M:%S,%f",
-    handlers=[logging.StreamHandler(sys.stdout)],
-)
+configure_logging(service="vectorizer")
 logging.getLogger("pika").setLevel(logging.WARNING)
 
 load_dotenv()

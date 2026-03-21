@@ -143,6 +143,7 @@ manager.p
 *.rdb
 *.archive
 *config.py
+!backend/logging_config.py
 
 # alam mongo auth stuff
 experiments/auths/
