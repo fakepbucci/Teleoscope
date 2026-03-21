@@ -1,4 +1,4 @@
-import amqp from 'amqplib';
+import amqp, { Connection, Channel } from 'amqplib';
 import { v4 as uuidv4 } from 'uuid';
 
 const username = process.env.RABBITMQ_USERNAME
@@ -10,48 +10,65 @@ const database = process.env.MONGODB_DATABASE
 
 const rabbitMqUrl = `amqp://${username}:${password}@${host}:${port}/${vhost}`
 
+let connection: Connection | null = null;
+let channel: Channel | null = null;
+
+async function getChannel(): Promise<Channel> {
+    if (channel) {
+        return channel;
+    }
+
+    connection = await amqp.connect(rabbitMqUrl);
+
+    connection.on('close', () => {
+        connection = null;
+        channel = null;
+    });
+
+    connection.on('error', () => {
+        connection = null;
+        channel = null;
+    });
+
+    channel = await connection.createChannel();
+
+    channel.on('close', () => {
+        channel = null;
+    });
+
+    channel.on('error', () => {
+        channel = null;
+    });
+
+    return channel;
+}
 
 async function send(task: string, args: any) {
     const queue = `${process.env.RABBITMQ_QUEUE}`;
-    
+
     const kwargs = {
         ...args,
         database: database
     }
-    // console.log("task", task)
-    // console.log("kwargs", kwargs)
-    try {    
-        // Connect to RabbitMQ server
-        const connection = await amqp.connect(rabbitMqUrl);
-        const channel = await connection.createChannel();
 
-        // Ensure the queue exists
-        await channel.assertQueue(queue, {
-            durable: true
-        });
+    const ch = await getChannel();
 
-        const message = {
-            id: uuidv4(),
-            task: task,
-            args: kwargs,
-            kwargs: kwargs,
-            retries: 0,
-            eta: new Date().toISOString()
-        };
+    await ch.assertQueue(queue, {
+        durable: true
+    });
 
-        const msg = JSON.stringify(message)
+    const message = {
+        id: uuidv4(),
+        task: task,
+        args: kwargs,
+        kwargs: kwargs,
+        retries: 0,
+        eta: new Date().toISOString()
+    };
 
-        // Send a message to the queue
-        channel.sendToQueue(queue, Buffer.from(msg));
+    const msg = JSON.stringify(message)
 
-        await channel.close();
-        await connection.close();
-
-        // console.log(`Sent ${msg} to RabbitMQ.`)
-    } catch (error) {
-        console.log(error)
-
-    }
+    ch.sendToQueue(queue, Buffer.from(msg));
 }
 
 export default send;

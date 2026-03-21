@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
     const raw_limit = request.nextUrl.searchParams.get('limit');
     const raw_skip = request.nextUrl.searchParams.get('skip');
 
-    const limit = raw_limit ? Math.max(parseInt(raw_limit), 10000) : 1000;
+    const limit = raw_limit ? Math.min(parseInt(raw_limit), 10000) : 1000;
     const skip = raw_skip ? parseInt(raw_skip) : 0;
 
     const result = await dbOp(async (client: MongoClient, db: Db) => {

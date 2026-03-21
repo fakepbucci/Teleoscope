@@ -17,14 +17,18 @@ export async function POST(request: NextRequest) {
         storage_ids
     }: { workspace_id: string; userid: string; group_ids: [string]; storage_ids: [string] } = req;
 
-    send('generate_docx', {
-        workspace_id: workspace_id,
-        userid: user.id,
-        group_ids: group_ids,
-        storage_ids: storage_ids
-    });
+    try {
+        await send('generate_docx', {
+            workspace_id: workspace_id,
+            userid: user.id,
+            group_ids: group_ids,
+            storage_ids: storage_ids
+        });
+    } catch (error) {
+        return NextResponse.json({ message: 'Queue unavailable.' }, { status: 503 });
+    }
 
-    return NextResponse.json({msg: 
+    return NextResponse.json({msg:
         "sent generate_docx task"
     });
 }

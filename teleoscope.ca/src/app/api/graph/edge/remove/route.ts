@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
 
         const uids = target_uids.concat(source_uids);
 
-        const result = await dbOp(async (client: MongoClient, db: Db) => {
+        const { delete_result, graph_update_target_node_uids } = await dbOp(async (client: MongoClient, db: Db) => {
             const match_nodes = await db
                 .collection<Graph>('graph')
                 .find(
@@ -86,16 +86,20 @@ export async function POST(request: NextRequest) {
                 }
             );
 
-            send("update_nodes", {
+            return { delete_result, graph_update_target_node_uids };
+        });
+
+        try {
+            await send("update_nodes", {
                 workflow_id: workflow_id,
                 workspace_id: workspace_id,
                 node_uids: graph_update_target_node_uids
             });
+        } catch (error) {
+            return NextResponse.json({ message: 'Queue unavailable.' }, { status: 503 });
+        }
 
-            return delete_result;
-        });
-
-        return NextResponse.json(result);
+        return NextResponse.json(delete_result);
     } catch (error) {
         console.error('Error processing the request:', error);
         return NextResponse.json({ message: 'Internal server error.' }, { status: 500 });

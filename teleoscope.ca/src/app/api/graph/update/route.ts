@@ -32,13 +32,18 @@ export async function POST(request: NextRequest) {
                 $set: setObject
             });
 
-        send('update_nodes', {
+        return update_result;
+    });
+
+    try {
+        await send('update_nodes', {
             workflow_id: workflow_id,
             workspace_id: effectiveWorkspaceId,
             node_uids: [uid]
         });
+    } catch (error) {
+        return NextResponse.json({ message: 'Queue unavailable.' }, { status: 503 });
+    }
 
-        return update_result;
-    });
     return NextResponse.json(result);
 }

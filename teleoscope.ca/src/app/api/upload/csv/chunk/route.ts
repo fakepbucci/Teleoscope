@@ -21,13 +21,17 @@ export const POST = async (request: NextRequest) => {
     const req = await request.json();
     const { workspace_id, data, label } = req;
 
-    send('chunk_upload', {
-        database: MONGODB_DATABASE,
-        userid: user.id,
-        workspace: workspace_id,
-        data: data,
-        label
-    });
+    try {
+        await send('chunk_upload', {
+            database: MONGODB_DATABASE,
+            userid: user.id,
+            workspace: workspace_id,
+            data: data,
+            label
+        });
+    } catch (error) {
+        return NextResponse.json({ message: 'Queue unavailable.' }, { status: 503 });
+    }
 
     return NextResponse.json({ status: 'success' });
 };

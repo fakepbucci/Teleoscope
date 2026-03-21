@@ -52,15 +52,18 @@ export async function POST(request: NextRequest) {
             }
         );
 
-        send('update_nodes', {
-            workflow_id: workflow_id,
-            workspace_id: effectiveWorkspaceId,
-            node_uids: group_uids.map(g => g.uid)
-        });
-        
-        return pull_result
+        return { pull_result, node_uids: group_uids.map(g => g.uid) };
     });
 
-    
-    return NextResponse.json(result);
+    try {
+        await send('update_nodes', {
+            workflow_id: workflow_id,
+            workspace_id: effectiveWorkspaceId,
+            node_uids: result.node_uids
+        });
+    } catch (error) {
+        return NextResponse.json({ message: 'Queue unavailable.' }, { status: 503 });
+    }
+
+    return NextResponse.json(result.pull_result);
 }

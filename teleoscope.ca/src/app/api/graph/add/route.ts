@@ -74,13 +74,18 @@ export async function POST(request: NextRequest) {
             .collection<Graph>('graph')
             .insertOne(doc);
 
-        send('update_nodes', {
+        return insert_result;
+    });
+
+    try {
+        await send('update_nodes', {
             workflow_id: workflow_id,
             workspace_id: effectiveWorkspaceId,
             node_uids: [uid]
         });
+    } catch (error) {
+        return NextResponse.json({ message: 'Queue unavailable.' }, { status: 503 });
+    }
 
-        return insert_result;
-    });
     return NextResponse.json(result);
 }

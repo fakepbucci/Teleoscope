@@ -23,10 +23,14 @@ export async function POST(request: NextRequest) {
         group_ids: group_ids,
         storage_ids: storage_ids
     }
-    send('generate_xlsx', task);
+    try {
+        await send('generate_xlsx', task);
+    } catch (error) {
+        return NextResponse.json({ message: 'Queue unavailable.' }, { status: 503 });
+    }
     console.log(task);
 
-    return NextResponse.json({msg: 
+    return NextResponse.json({msg:
         "sent generate_xlsx task"
     });
 }

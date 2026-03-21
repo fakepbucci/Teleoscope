@@ -33,15 +33,19 @@ export async function POST(request: NextRequest) {
                     }
                 );
 
-                send('delete_storage', {
-                    database: MONGODB_DATABASE,
-                    userid: user.id,
-                    workspace: workspace_id,
-                    storage: storage_id,
-                });
-
             return { workspace_delete_result };
         });
+
+        try {
+            await send('delete_storage', {
+                database: MONGODB_DATABASE,
+                userid: user.id,
+                workspace: workspace_id,
+                storage: storage_id,
+            });
+        } catch (error) {
+            return NextResponse.json({ message: 'Queue unavailable.' }, { status: 503 });
+        }
 
         return NextResponse.json(result);
     } catch (error) {

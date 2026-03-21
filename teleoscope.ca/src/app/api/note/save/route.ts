@@ -31,12 +31,16 @@ export async function POST(request: NextRequest) {
                 }
             );
 
-            send('vectorize_note', {
-                note_id: note_id
-            });
-
             return updateResult;
         });
+
+        try {
+            await send('vectorize_note', {
+                note_id: note_id
+            });
+        } catch (error) {
+            return NextResponse.json({ message: 'Queue unavailable.' }, { status: 503 });
+        }
 
         return NextResponse.json(result);
     } catch (error) {
