@@ -137,7 +137,22 @@ def send_documents_for_processing(documents, workspace_id, database):
 ################################################################################
 # Graph API
 ################################################################################
-def graph_uid(db, workspace_id, uid):
+def graph_uid(db, workspace_id, uid, visited: set | None = None, max_depth: int = 500, _depth: int = 0):
+    if visited is None:
+        visited = set()
+
+    if uid in visited:
+        logging.info(f"Cycle detected at node {uid}; skipping to avoid infinite recursion.")
+        return
+
+    if _depth > max_depth:
+        raise RecursionError(
+            f"graph_uid exceeded maximum recursion depth of {max_depth} at node {uid}. "
+            f"The graph may contain a cycle or be unusually deep."
+        )
+
+    visited.add(uid)
+
     db.graph.update_one({"uid": uid}, {"$set": {"doclists": []}})
     node = db.graph.find_one({"uid": uid})
     if not node:
@@ -183,7 +198,7 @@ def graph_uid(db, workspace_id, uid):
 
     # Calculate each node downstream to the right.
     for edge_uid in outputs:
-        graph_uid(db, workspace_id, edge_uid)
+        graph_uid(db, workspace_id, edge_uid, visited=visited, max_depth=max_depth, _depth=_depth + 1)
 
     return res
 

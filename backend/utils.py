@@ -61,6 +61,9 @@ MILVUS_DATABASE = os.getenv("MILVUS_DATABASE")
 
 db = "test"
 
+_mongo_client: MongoClient | None = None
+_mongo_client_lock = Lock()
+
 
 def make_client():
     # autht = "authSource=admin&authMechanism=SCRAM-SHA-256&tls=true" Added this to config as: MONGODB_AUTHT
@@ -79,6 +82,25 @@ def make_client():
         # read_preference = ReadPreference.PRIMARY_PREFERRED
     )
     return client
+
+
+def get_client() -> MongoClient:
+    """Return the module-level MongoClient singleton, creating it on first call."""
+    global _mongo_client
+    if _mongo_client is None:
+        with _mongo_client_lock:
+            if _mongo_client is None:
+                _mongo_client = make_client()
+    return _mongo_client
+
+
+def close_client():
+    """Close the module-level MongoClient singleton. Useful for shutdown and test teardown."""
+    global _mongo_client
+    with _mongo_client_lock:
+        if _mongo_client is not None:
+            _mongo_client.close()
+            _mongo_client = None
 
 
 def test_user(db):
@@ -126,7 +148,7 @@ def sanitize_filepath(filepath: str) -> str:
 
 
 def connect(db=db):
-    client = make_client()
+    client = get_client()
     return client[db]
 
 
